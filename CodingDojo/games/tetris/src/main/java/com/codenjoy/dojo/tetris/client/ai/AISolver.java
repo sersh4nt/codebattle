@@ -33,10 +33,7 @@ import com.codenjoy.dojo.tetris.client.Board;
 import com.codenjoy.dojo.tetris.model.*;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static com.codenjoy.dojo.services.PointImpl.pt;
@@ -84,7 +81,6 @@ public class AISolver extends AbstractJsonSolver<Board> {
         if (combo == null) {
             System.out.println(); // не должно случиться
         }
-        System.out.println("Lines cleared: " + combo.getLines());
 
         Point to = combo.getPoint();
 
@@ -97,9 +93,6 @@ public class AISolver extends AbstractJsonSolver<Board> {
         } else {
             direction = null;
         }
-
-        if(combo.getMaxHeight() > 11 && combo.getRelHeight() > 3)
-            return "Act(0,0)";
 
         final String[] result = {""};
         if (direction != null) {
@@ -114,24 +107,13 @@ public class AISolver extends AbstractJsonSolver<Board> {
     }
 
     private Combination findBest(List<Combination> combos) {
-        return combos.stream()
-                .sorted(compareCombos().reversed())
-                .findFirst()
-                .get();
+        return Collections.max(combos, compareCombos());
     }
 
     private Comparator<? super Combination> compareCombos() {
-        return (o1, o2) -> Double.compare(getPenalty(o1), getPenalty(o2));
+        return (o1, o2) -> Double.compare(o1.getScore(), o2.getScore());
     }
 
-    private double getPenalty(Combination o1) {
-        return o1.getHoles() * HOLES_FACTOR +
-                o1.getMaxHeight() * HEIGHEST_COL_FACTOR +
-                o1.getRelHeight() * RELATIVE_HEIGHT_FACTOR +
-                o1.getSumHeight() * SUM_HEIGHT_FACTOR +
-                o1.getBumpiness() * BUMPINESS_FACTOR +
-                o1.getLines() * o1.getLines() * LINES_FACTOR;
-    }
 
     private void removeCurrentFigure(Glass glass, Figure figure, Point point, List<Plot> plots) {
         glass.figureAt(figure, point.getX(), point.getY());
@@ -150,6 +132,7 @@ public class AISolver extends AbstractJsonSolver<Board> {
         private int holes;
         private int bumpiness;
 
+        private double score;
 
         public Combination(int rotate, Point point) {
             this.rotate = rotate;
@@ -163,29 +146,32 @@ public class AISolver extends AbstractJsonSolver<Board> {
             this.relHeight = relHeight;
             this.holes = holes;
             this.bumpiness = bumpiness;
+
+            this.score = lines * LINES_FACTOR + 
+                maxHeight * HEIGHEST_COL_FACTOR +
+                sumHeight * SUM_HEIGHT_FACTOR +
+                relHeight * RELATIVE_HEIGHT_FACTOR +
+                holes * HOLES_FACTOR +
+                bumpiness * BUMPINESS_FACTOR;
         }
 
-        public Point getPoint() {
-            return point;
-        }
+        public Point getPoint() { return point; }
 
-        public int getRotate() {
-            return rotate;
-        }
+        public int getRotate() { return rotate; }
 
-        public int getHoles() {
-            return holes;
-        }
-
-        public int getMaxHeight() { return maxHeight; }
+        public double getScore() { return score; }
 
         public int getRelHeight() { return relHeight; }
 
-        public int getSumHeight() { return sumHeight; }
+        public int getBumpiness() { return bumpiness; }
+
+        public int getHoles() { return holes; }
 
         public int getLines() { return lines; }
 
-        public int getBumpiness() { return bumpiness; }
+        public int getMaxHeight() { return maxHeight; }
+
+        public int getSumHeight() { return sumHeight; }
     }
 
     private List<Combination> getPointToDrop(int size, Glass glass, Figure figure) {
