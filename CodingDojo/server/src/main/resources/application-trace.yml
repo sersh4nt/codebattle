@@ -1,0 +1,8 @@
+log.debug: true
+logging:
+  level:
+    com:
+      codenjoy: debug
+    org:
+      eclipse.jetty: debug
+      springframework.mvc: debug
