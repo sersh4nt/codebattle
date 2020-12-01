@@ -40,10 +40,10 @@ import static com.codenjoy.dojo.services.PointImpl.pt;
 
 public class AISolver extends AbstractJsonSolver<Board> {
 
-    private static final double LINES_FACTOR = 0.4106816860123958;
-    private static final double HEIGHEST_COL_FACTOR = -0.08679520494876472;
+    private static final double LINES_FACTOR = 0.22568649650722883;
+    private static final double HIGHEST_COL_FACTOR = -0.08679520494876472;
     private static final double SUM_HEIGHT_FACTOR = -0.6152727732730796;
-    private static final double RELATIVE_HEIGHT_FACTOR = 0.028340097577794654;
+    private static final double RELATIVE_HEIGHT_FACTOR = -0.15673335811574518;
     private static final double HOLES_FACTOR = -0.17437734216356443;
     private static final double BUMPINESS_FACTOR = -0.021586109522043928;
     private Dice dice;
@@ -82,6 +82,7 @@ public class AISolver extends AbstractJsonSolver<Board> {
             System.out.println(); // не должно случиться
         }
 
+        assert combo != null;
         Point to = combo.getPoint();
 
         int dx = to.getX() - point.getX();
@@ -147,8 +148,8 @@ public class AISolver extends AbstractJsonSolver<Board> {
             this.holes = holes;
             this.bumpiness = bumpiness;
 
-            this.score = lines * LINES_FACTOR + 
-                maxHeight * HEIGHEST_COL_FACTOR +
+            this.score = lines * LINES_FACTOR * lines +
+                maxHeight * HIGHEST_COL_FACTOR +
                 sumHeight * SUM_HEIGHT_FACTOR +
                 relHeight * RELATIVE_HEIGHT_FACTOR +
                 holes * HOLES_FACTOR +
@@ -161,22 +162,14 @@ public class AISolver extends AbstractJsonSolver<Board> {
 
         public double getScore() { return score; }
 
-        public int getRelHeight() { return relHeight; }
-
-        public int getBumpiness() { return bumpiness; }
-
         public int getHoles() { return holes; }
 
         public int getLines() { return lines; }
-
-        public int getMaxHeight() { return maxHeight; }
-
-        public int getSumHeight() { return sumHeight; }
     }
 
     private List<Combination> getPointToDrop(int size, Glass glass, Figure figure) {
         List<Combination> result = new LinkedList<>();
-        for (int r = 0; r <= 2; r++) {
+        for (int r = 0; r <= 3; r++) {
             for (int y = 0; y < size; y++) {
                 for (int x = 0; x < size; x++) {
                     if (glass.accept(figure, x, y)) {
