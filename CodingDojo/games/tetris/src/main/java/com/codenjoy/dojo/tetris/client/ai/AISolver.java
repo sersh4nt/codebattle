@@ -40,12 +40,14 @@ import static com.codenjoy.dojo.services.PointImpl.pt;
 
 public class AISolver extends AbstractJsonSolver<Board> {
 
-    private static final double LINES_FACTOR = 0.22568649650722883;
-    private static final double HIGHEST_COL_FACTOR = -0.08679520494876472;
-    private static final double SUM_HEIGHT_FACTOR = -0.6152727732730796;
-    private static final double RELATIVE_HEIGHT_FACTOR = -0.15673335811574518;
-    private static final double HOLES_FACTOR = -0.17437734216356443;
-    private static final double BUMPINESS_FACTOR = -0.021586109522043928;
+    private static final double LANDING_HEIGHT_FACTOR = -12.63;
+    private static final double ERODED_CELLS_FACTOR = 6.60;
+    private static final double ROW_TRANSITIONS_FACTOR = -9.22;
+    private static final double COL_TRANSITIONS_FACTOR = -19.77;
+    private static final double HOLES_FACTOR = -13.08;
+    private static final double WELLS_FACTOR = -10.49;
+    private static final double HOLES_DEPTH_FACTOR = -1.61;
+    private static final double ROWS_WITH_HOLES_FACTOR = -24.04;
     private Dice dice;
     private int size;
 
@@ -112,9 +114,19 @@ public class AISolver extends AbstractJsonSolver<Board> {
     }
 
     private Comparator<? super Combination> compareCombos() {
-        return (o1, o2) -> Double.compare(o1.getScore(), o2.getScore());
+        return (o1, o2) -> Double.compare(getPenalty(o1), getPenalty(o2));
     }
 
+    private double getPenalty(Combination o1) {
+        return o1.getLandingHeight() * LANDING_HEIGHT_FACTOR +
+                o1.getErodedCells() * ERODED_CELLS_FACTOR +
+                o1.getRowTransitions() * ROW_TRANSITIONS_FACTOR +
+                o1.getColTransitions() * COL_TRANSITIONS_FACTOR +
+                o1.getHoles() * HOLES_FACTOR +
+                o1.getWells() * WELLS_FACTOR +
+                o1.getHoleDepth() * HOLES_DEPTH_FACTOR +
+                o1.getRowsWithHoles() * ROWS_WITH_HOLES_FACTOR;
+    }
 
     private void removeCurrentFigure(Glass glass, Figure figure, Point point, List<Plot> plots) {
         glass.figureAt(figure, point.getX(), point.getY());
@@ -126,45 +138,57 @@ public class AISolver extends AbstractJsonSolver<Board> {
     static class Combination {
         private Point point;
         private int rotate;
-        private int lines;
-        private int maxHeight;
-        private int sumHeight;
-        private int relHeight;
-        private int holes;
-        private int bumpiness;
-
-        private double score;
+        private int landingHeight = 0;
+        private int erodedCells = 0;
+        private int rowTransitions = 0;
+        private int colTransitions = 0;
+        private int holes = 0;
+        private int wells = 0;
+        private int holeDepth = 0;
+        private int rowsWithHoles = 0;
 
         public Combination(int rotate, Point point) {
             this.rotate = rotate;
             this.point = point;
         }
 
-        public void setScore(int lines, int maxHeight, int sumHeight, int relHeight, int holes, int bumpiness) {
-            this.lines = lines;
-            this.maxHeight = maxHeight;
-            this.sumHeight = sumHeight;
-            this.relHeight = relHeight;
+        public void setScore(int landingHeight,
+                             int erodedCells,
+                             int rowTransitions,
+                             int colTransitions,
+                             int holes,
+                             int wells,
+                             int holeDepth,
+                             int rowsWithHoles) {
+            this.landingHeight = landingHeight;
+            this.erodedCells = erodedCells;
+            this.rowTransitions = rowTransitions;
+            this.colTransitions = colTransitions;
             this.holes = holes;
-            this.bumpiness = bumpiness;
-
-            this.score = lines * LINES_FACTOR * lines +
-                maxHeight * HIGHEST_COL_FACTOR +
-                sumHeight * SUM_HEIGHT_FACTOR +
-                relHeight * RELATIVE_HEIGHT_FACTOR +
-                holes * HOLES_FACTOR +
-                bumpiness * BUMPINESS_FACTOR;
+            this.wells = wells;
+            this.holeDepth = holeDepth;
+            this.rowsWithHoles = rowsWithHoles;
         }
 
         public Point getPoint() { return point; }
 
         public int getRotate() { return rotate; }
 
-        public double getScore() { return score; }
+        public int getLandingHeight() { return landingHeight; }
+
+        public int getErodedCells() { return erodedCells; }
+
+        public int getRowTransitions() { return rowTransitions; }
+
+        public int getColTransitions() { return colTransitions; }
 
         public int getHoles() { return holes; }
 
-        public int getLines() { return lines; }
+        public int getWells() { return wells; }
+
+        public int getHoleDepth() { return holeDepth; }
+
+        public int getRowsWithHoles() { return rowsWithHoles; }
     }
 
     private List<Combination> getPointToDrop(int size, Glass glass, Figure figure) {
@@ -196,12 +220,14 @@ public class AISolver extends AbstractJsonSolver<Board> {
             }
         }
         dropped.forEach(point -> occupied[point.getX()][point.getY()] = true);
+        int landingHeight = glass.getLandingHeight();
+        int erodedCells = glass.getErodedCells();
+        int rowTransitions = 0;
+        int colTransitions = 0;
         int holes = 0;
-        int sumHeight = 0;
-        int relHeight;
-        int maxHeight;
-        int lines = glass.getRemovedLines();
-        int bumpiness = 0;
+        int wells = 0;
+        int holeDepth = 0;
+        int rowsWithHoles = 0;
 
         int[] colHeight = new int[size];
         for(int col = 0; col < size; ++col) {
@@ -221,12 +247,20 @@ public class AISolver extends AbstractJsonSolver<Board> {
         maxHeight = Arrays.stream(colHeight).max().getAsInt();
         relHeight = maxHeight - Arrays.stream(colHeight).min().getAsInt();
 
-        combo.setScore(lines, maxHeight, sumHeight, relHeight, holes, bumpiness);
+        combo.setScore(landingHeight,
+                erodedCells,
+                rowTransitions,
+                colTransitions,
+                holes,
+                wells,
+                holeDepth,
+                rowsWithHoles
+        );
     }
 
     public static void main(String[] args) {
         WebSocketRunner.runClient(
-                "http://codebattle2020.westeurope.cloudapp.azure.com/codenjoy-contest/board/player/n9ep28lbmznwqjeb4laf?code=8130214853929400052",
+                "http://codebattle2020.westeurope.cloudapp.azure.com/codenjoy-contest/board/player/f7m31sh7zkmrhcyg6sjg?code=6088936885106140266",
                 new AISolver(new RandomDice()),
                 new Board());
     }

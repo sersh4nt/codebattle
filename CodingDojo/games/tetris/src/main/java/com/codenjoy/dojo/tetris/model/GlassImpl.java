@@ -46,6 +46,7 @@ public class GlassImpl implements Glass {
     private int y;
     private Supplier<Integer> getLevel;
     private int removedLines;
+    private int landingHeight;
 
     public GlassImpl(int width, int height, Supplier<Integer> supplier) {
         this.width = width;
@@ -109,7 +110,8 @@ public class GlassImpl implements Glass {
             return;
         }
         performDrop(figure, x, available - figure.bottom());
-        removedLines = removeLines();
+        landingHeight = available - removedLines + figure.height() / 2;
+        removedLines = removeLines(figure);
     }
 
     public void addPlot(Figure figure, int x, int y) {
@@ -142,8 +144,9 @@ public class GlassImpl implements Glass {
         }
     }
 
-    private int removeLines() {
+    private int removeLines(Figure figure) {
         int removed = 0;
+        int removedFromCurrentFigure = 0;
         for (int i = 0; i < occupied.size(); i++) {
             while (wholeLine(i)) {
                 occupied.remove(i);
@@ -272,4 +275,7 @@ public class GlassImpl implements Glass {
 
     @Override
     public int getRemovedLines() { return removedLines; };
+
+    @Override
+    public int getLandingHeight() { return landingHeight; }
 }

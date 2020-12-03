@@ -39,6 +39,8 @@ public interface Figure {
 
     int[] rowCodes(boolean ignoreColors);
 
+    int[] getRowsQuantity();
+
     int width();
 
     int height();

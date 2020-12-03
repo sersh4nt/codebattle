@@ -33,6 +33,7 @@ public class FigureImpl implements Figure, Cloneable {
     public String[] rows = new String[]{"#"};
     private int[] codes;
     private int[] uncoloredCodes;
+    private int[] rowsQuantity;
 
     public FigureImpl() {
         this(0, 0, "#");
@@ -53,12 +54,14 @@ public class FigureImpl implements Figure, Cloneable {
         this.rows = rows;
         codes = new int[rows.length];
         uncoloredCodes = new int[rows.length];
+        rowsQuantity = new int[rows.length];
         for (int i = 0; i < rows.length; i++) {
             String row = rows[i];
             String colorCode = Integer.toBinaryString(type.getColor().ordinal() + 1);
             String paddedCode = StringUtils.leftPad(colorCode, 3, '0');
             codes[i] = Integer.parseInt(row.replace("#", paddedCode).replace(" " , "000"), 2);
             uncoloredCodes[i] = Integer.parseInt(row.replace("#", "111").replace(" " , "000"), 2);
+            rowsQuantity[i] = StringUtils.countMatches(rows[i], '#');
         }
     }
 
@@ -150,4 +153,7 @@ public class FigureImpl implements Figure, Cloneable {
                 left(), right(),
                 top(), bottom());
     }
+
+    @Override
+    public int[] getRowsQuantity() { return rowsQuantity; }
 }

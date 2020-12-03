@@ -50,4 +50,6 @@ public interface Glass {
     Glass clone();
 
     int getRemovedLines();
+
+    int getLandingHeight();
 }
