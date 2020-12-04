@@ -47,6 +47,7 @@ public class GlassImpl implements Glass {
     private Supplier<Integer> getLevel;
     private int removedLines;
     private int landingHeight;
+    private int erodedCells;
 
     public GlassImpl(int width, int height, Supplier<Integer> supplier) {
         this.width = width;
@@ -110,7 +111,7 @@ public class GlassImpl implements Glass {
             return;
         }
         performDrop(figure, x, available - figure.bottom());
-        landingHeight = available - removedLines + figure.height() / 2;
+        landingHeight = available;
         removedLines = removeLines(figure);
     }
 
@@ -147,11 +148,14 @@ public class GlassImpl implements Glass {
     private int removeLines(Figure figure) {
         int removed = 0;
         int removedFromCurrentFigure = 0;
+        int[] figureRows = figure.getRowsQuantity();
         for (int i = 0; i < occupied.size(); i++) {
             while (wholeLine(i)) {
                 occupied.remove(i);
                 occupied.add(BigInteger.ZERO);
                 removed++;
+                if(landingHeight - 3 + figure.top() <= i && i <= landingHeight + figure.top())
+                    removedFromCurrentFigure += figureRows[landingHeight + figure.top() - i];
             }
         }
         if (removed > 0) {
@@ -159,6 +163,7 @@ public class GlassImpl implements Glass {
                 listener.event(Events.linesRemoved(getLevel.get(), removed));
             }
         }
+        erodedCells = removedLines * removedFromCurrentFigure;
         return removed;
     }
 
@@ -274,8 +279,8 @@ public class GlassImpl implements Glass {
     }
 
     @Override
-    public int getRemovedLines() { return removedLines; };
+    public int getLandingHeight() { return landingHeight; }
 
     @Override
-    public int getLandingHeight() { return landingHeight; }
+    public int getErodedCells() { return erodedCells; }
 }

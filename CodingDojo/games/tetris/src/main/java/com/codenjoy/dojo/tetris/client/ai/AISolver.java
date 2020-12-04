@@ -230,22 +230,59 @@ public class AISolver extends AbstractJsonSolver<Board> {
         int rowsWithHoles = 0;
 
         int[] colHeight = new int[size];
+        boolean[] colHasHole = new boolean[size];
+
+        //finding wells
+        for(int col = 1; col < size - 1; ++col) {
+            boolean start = false;
+            int startHeight = 0;
+            for(int y = size - 1; y >=0; --y) {
+                if(occupied[col-1][y] && !occupied[col][y] && occupied[col + 1][y]) {
+                    if(!start) {
+                        start = true;
+                        startHeight = y;
+                    }
+                }
+                else if (start) {
+                    start = false;
+                    int depth = startHeight - y;
+                    wells += depth * (depth + 1) / 2;
+                }
+            }
+        }
+
+        //finding holes and holes depth
         for(int col = 0; col < size; ++col) {
             boolean start = false;
             for(int y = size - 1; y >= 0; --y) {
-                if (occupied[col][y] && !start) {
-                    colHeight[col] = y + 1;
+                if(occupied[col][y] && !start) {
                     start = true;
+                    colHeight[col] = y;
                 }
-                if(!occupied[col][y] && y < colHeight[col])
+                else if (!occupied[col][y] && y < colHeight[col]) {
+                    holeDepth += colHeight[col] - y;
                     holes++;
+                    colHasHole[col] = true;
+                }
             }
-            sumHeight += colHeight[col];
-            if(col > 0)
-                bumpiness += Math.abs(colHeight[col] - colHeight[col - 1]);
         }
-        maxHeight = Arrays.stream(colHeight).max().getAsInt();
-        relHeight = maxHeight - Arrays.stream(colHeight).min().getAsInt();
+
+        //finding row transitions
+        for(int row = 0; row < size; ++row) {
+            for(int x = 1; x < size; ++x) {
+                if(occupied[x - 1][row] != occupied[x][row])
+                    rowTransitions++;
+            }
+        }
+        //finding col transitions
+        for(int col = 0; col < size; ++col) {
+            if (colHasHole[col])
+                rowsWithHoles++;
+            for(int y = 1; y < size; ++y) {
+                if(occupied[col][y - 1] != occupied[col][y])
+                    colTransitions++;
+            }
+        }
 
         combo.setScore(landingHeight,
                 erodedCells,
