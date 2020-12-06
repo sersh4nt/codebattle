@@ -58,8 +58,28 @@ public class GlassImpl implements Glass {
         }
     }
 
+    private boolean couldDrop(Figure figure, int x, int y) {
+        int l = x - figure.left();
+        int r = x + figure.right();
+        int d = y - figure.bottom();
+        for(int row = d; row < height; ++row) {
+            for(int col = 18 - l; col <= 18 - r; --col) {
+                BigInteger line = occupied.get(row);
+                int num = line.shiftRight(col * BITS).and(new BigInteger("111", 2)).intValue();
+                if(num > 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     public boolean accept(Figure figure, int x, int y) {
         if (isOutside(figure, x, y)) {
+            return false;
+        }
+
+        if(!couldDrop(figure, x, y)) {
             return false;
         }
 

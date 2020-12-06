@@ -297,7 +297,7 @@ public class AISolver extends AbstractJsonSolver<Board> {
 
     public static void main(String[] args) {
         WebSocketRunner.runClient(
-                "http://codebattle2020.westeurope.cloudapp.azure.com/codenjoy-contest/board/player/f7m31sh7zkmrhcyg6sjg?code=6088936885106140266",
+                "http://codebattle2020.westeurope.cloudapp.azure.com/codenjoy-contest/board/player/eryb8br89cdnbsnxc6r9?code=2029116705810868315",
                 new AISolver(new RandomDice()),
                 new Board());
     }

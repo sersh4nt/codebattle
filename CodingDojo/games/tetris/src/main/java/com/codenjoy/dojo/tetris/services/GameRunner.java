@@ -70,7 +70,8 @@ public class GameRunner extends AbstractGameType implements GameType {
     public GameField createGame(int level) {
         Figures queue = new Figures();
         Levels levels = loadLevelsFor(queue, gameLevels.getValue());
-        levels.gotoLevel(level - LevelProgress.levelsStartsFrom1);
+        levels.gotoLevel(level - LevelProgress
+                .levelsStartsFrom1);
         return new Tetris(levels, queue, glassSize.getValue());
     }
 
