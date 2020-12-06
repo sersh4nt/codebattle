@@ -47,6 +47,12 @@ public class Board extends AbstractTextBoard {
         return pt(x, y);
     }
 
+    public int getCurrentLevel() {
+        JSONObject level = getJson().getJSONObject("levelProgress");
+        int lvl = level.getInt("current");
+        return lvl;
+    }
+
     public Elements getCurrentFigureType() {
         if (!getJson().has("currentFigureType")) {
             return null;

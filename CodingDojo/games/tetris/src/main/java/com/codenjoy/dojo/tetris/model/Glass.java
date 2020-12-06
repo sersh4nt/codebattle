@@ -29,7 +29,7 @@ import java.util.List;
 
 public interface Glass {
 
-    boolean accept(Figure figure, int x, int y);
+    boolean accept(Figure figure, int x, int y, boolean lastCol);
 
     void drop(Figure figure, int x, int y);
 
@@ -52,4 +52,6 @@ public interface Glass {
     int getErodedCells();
 
     int getLandingHeight();
+
+    boolean getHasFourLines();
 }

@@ -60,6 +60,7 @@ public class AISolver extends AbstractJsonSolver<Board> {
         String glassString = board.getGlass().getLayersString().get(0);
         size = board.getGlass().size();
         Glass glass = new GlassImpl(size, size, () -> 0);
+        int currentLevel = board.getCurrentLevel();
 
         Elements current = board.getCurrentFigureType();
         if (current == null) {
@@ -76,10 +77,24 @@ public class AISolver extends AbstractJsonSolver<Board> {
 
         Tetris.setPlots(glass, plots);
 
-        List<Combination> combos = getPointToDrop(size, glass, figure);
+        if(currentLevel == 1) {
+            List<Combination> combos = getPointToDrop(size, glass, figure, false);
 
-        Combination combo = findBest(combos);
+            Combination combo = findBest(combos);
+            return getCombo(combo, point);
+        } else {
+            if(board.getCurrentFigureType() == Elements.BLUE && glass.getHasFourLines()) {
+                Combination combo = new Combination(0, pt(17, 2));
+                return getCombo(combo, point);
+            } else {
+                List<Combination> combos = getPointToDrop(size, glass, figure, true);
+                Combination combo = findBest(combos);
+                return getCombo(combo, point);
+            }
+        }
+    }
 
+    private String getCombo(Combination combo, Point point) {
         if (combo == null) {
             System.out.println(); // не должно случиться
         }
@@ -191,12 +206,12 @@ public class AISolver extends AbstractJsonSolver<Board> {
         public int getRowsWithHoles() { return rowsWithHoles; }
     }
 
-    private List<Combination> getPointToDrop(int size, Glass glass, Figure figure) {
+    private List<Combination> getPointToDrop(int size, Glass glass, Figure figure, boolean lastCol) {
         List<Combination> result = new LinkedList<>();
         for (int r = 0; r <= 3; r++) {
             for (int y = 0; y < size; y++) {
                 for (int x = 0; x < size; x++) {
-                    if (glass.accept(figure, x, y)) {
+                    if (glass.accept(figure, x, y, lastCol)) {
                         Glass clone = glass.clone();
                         clone.drop(figure, x, y);
                         Combination combo = new Combination(r, pt(x, y));

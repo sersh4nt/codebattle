@@ -48,6 +48,17 @@ public class GlassImpl implements Glass {
     private int removedLines;
     private int landingHeight;
     private int erodedCells;
+    private boolean hasFourLines;
+
+    public boolean getHasFourLines() {
+        int cnt = 0;
+        for(int row = 0; row <4; ++row) {
+            if(wholeLineWighoutLast(row)) {
+                cnt++;
+            }
+        }
+        return cnt > 2;
+    }
 
     public GlassImpl(int width, int height, Supplier<Integer> supplier) {
         this.width = width;
@@ -56,6 +67,7 @@ public class GlassImpl implements Glass {
         for (int i = 0; i < height; i++) {
             occupied.add(BigInteger.ZERO);
         }
+        this.hasFourLines = false;
     }
 
     private boolean couldDrop(Figure figure, int x, int y) {
@@ -63,7 +75,7 @@ public class GlassImpl implements Glass {
         int r = x + figure.right();
         int d = y - figure.bottom();
         for(int row = d; row < height; ++row) {
-            for(int col = 18 - l; col <= 18 - r; --col) {
+            for(int col = 18 - l; col <= 18 - r; ++col) {
                 BigInteger line = occupied.get(row);
                 int num = line.shiftRight(col * BITS).and(new BigInteger("111", 2)).intValue();
                 if(num > 0) {
@@ -74,12 +86,12 @@ public class GlassImpl implements Glass {
         return true;
     }
 
-    public boolean accept(Figure figure, int x, int y) {
-        if (isOutside(figure, x, y)) {
+    public boolean accept(Figure figure, int x, int y, boolean lastCol) {
+        if (isOutside(figure, x, y, lastCol)) {
             return false;
         }
 
-        if(!couldDrop(figure, x, y)) {
+        if(!couldDrop(figure, x ,y)) {
             return false;
         }
 
@@ -97,11 +109,11 @@ public class GlassImpl implements Glass {
         return !occupied;
     }
 
-    private boolean isOutside(Figure figure, int x, int y) {
+    private boolean isOutside(Figure figure, int x, int y, boolean lastCol) {
         if (isOutsideLeft(figure, x)) {
             return true;
         }
-        if (isOutsideRight(figure, x)) {
+        if (isOutsideRight(figure, x, lastCol)) {
             return true;
         }
         if (isOutsideBottom(figure, y)) {
@@ -118,12 +130,12 @@ public class GlassImpl implements Glass {
         return x - figure.left() < 0;
     }
 
-    private boolean isOutsideRight(Figure figure, int x) {
-        return x + figure.right() >= width;
+    private boolean isOutsideRight(Figure figure, int x, boolean lastCol) {
+        return x + figure.right() >= width + (lastCol ? -1 : 0);
     }
 
     public void drop(Figure figure, int x, int y) {
-        if (isOutside(figure, x, y)) {
+        if (isOutside(figure, x, y, false)) {
             return;
         }
         int available = findAvailableYPosition(figure, x, y);
@@ -198,9 +210,20 @@ public class GlassImpl implements Glass {
         return true;
     }
 
+    private boolean wholeLineWighoutLast(int y) {
+        for (int i = 1; i < width; i++) {
+            BigInteger line = occupied.get(y);
+            BigInteger atPos = Ob111.shiftLeft((i + 1)*BITS);
+            if ((line.and(atPos).equals(BigInteger.ZERO))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private int findAvailableYPosition(Figure figure, int x, int y) {
         int yy = y;
-        while (accept(figure, x, --yy)) {}
+        while (accept(figure, x, --yy, false)) {}
         yy++;
         return yy;
     }

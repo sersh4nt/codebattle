@@ -73,7 +73,7 @@ public class Hero extends PlayerHero<Field> implements State<Elements, Player> {
     }
 
     protected void moveHorizontallyIfAccepted(int tmpX) {
-        if (glass.accept(figure, tmpX, y)) {
+        if (glass.accept(figure, tmpX, y, false)) {
             x = tmpX;
         }
     }
@@ -96,7 +96,7 @@ public class Hero extends PlayerHero<Field> implements State<Elements, Player> {
         Figure clonedFigure = figure.copy();
 
         figure.rotate(times);
-        if (!glass.accept(figure, x, y)) {
+        if (!glass.accept(figure, x, y, false)) {
             figure = clonedFigure;
         }
         glass.figureAt(figure, x, y);
@@ -122,13 +122,13 @@ public class Hero extends PlayerHero<Field> implements State<Elements, Player> {
     private boolean processFigure() {
         if (isFirstStep()) {
             return true;
-        } else if (!glass.accept(figure, x, y)) {
+        } else if (!glass.accept(figure, x, y, false)) {
             glass.empty();
             return true;
         } else if (drop) {
             glass.drop(figure, x, y);
             return true;
-        } else if (!glass.accept(figure, x, y - 1)) {
+        } else if (!glass.accept(figure, x, y - 1, false)) {
             glass.drop(figure, x, y);
             return true;
         } else {
@@ -182,7 +182,7 @@ public class Hero extends PlayerHero<Field> implements State<Elements, Player> {
     }
 
     public boolean showCurrentFigure() {
-        boolean accept = glass.accept(figure, x, y);
+        boolean accept = glass.accept(figure, x, y, false);
         if (accept) {
             glass.figureAt(figure, x, y);
         }

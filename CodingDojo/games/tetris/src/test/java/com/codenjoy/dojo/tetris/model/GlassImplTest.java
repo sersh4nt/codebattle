@@ -70,36 +70,36 @@ public class GlassImplTest {
 
     @Test
     public void shouldAcceptWhenEmpty() {
-        assertTrue(glass.accept(new FigureImpl(), 1, 1));
+        assertTrue(glass.accept(new FigureImpl(), 1, 1, false));
     }
 
     @Test
     public void shouldRejectWhenAcceptingOnDroppedPlace() {
         glass.drop(new FigureImpl(), 0, 0);
 
-        assertFalse(glass.accept(new FigureImpl(), 0, 0));
+        assertFalse(glass.accept(new FigureImpl(), 0, 0, false));
     }
 
     @Test
     public void shouldPerformDropWhenDropRequested() {
         glass.drop(new FigureImpl(), 0, HEIGHT);
 
-        assertFalse(glass.accept(new FigureImpl(), 0, 0));
+        assertFalse(glass.accept(new FigureImpl(), 0, 0, false));
     }
 
     @Test
     public void shouldRejectWhenFigurePartlyOutsideFromLeft() {
-        assertFalse(glass.accept(new FigureImpl(1, 0, "##"), 0, HEIGHT));
+        assertFalse(glass.accept(new FigureImpl(1, 0, "##"), 0, HEIGHT, false));
     }
 
     @Test
     public void shouldRejectWhenFigurePartlyOutsideFromRight() {
-        assertFalse(glass.accept(new FigureImpl(0, 0, "##"), WIDTH, HEIGHT));
+        assertFalse(glass.accept(new FigureImpl(0, 0, "##"), WIDTH, HEIGHT, false));
     }
 
     @Test
     public void shouldRejectWhenFigurePartlyOutsideBottom() {
-        assertFalse(glass.accept(new FigureImpl(0, 0, "#", "#"), WIDTH, 0));
+        assertFalse(glass.accept(new FigureImpl(0, 0, "#", "#"), WIDTH, 0, false));
     }
 
     @Test
@@ -108,16 +108,16 @@ public class GlassImplTest {
 
         glass.drop(figure, WIDTH / 2, HEIGHT);
 
-        assertFalse(glass.accept(figure, WIDTH / 2 + 1, 0));
-        assertFalse(glass.accept(figure, WIDTH / 2, 0));
-        assertFalse(glass.accept(figure, WIDTH / 2 - 1, 0));
+        assertFalse(glass.accept(figure, WIDTH / 2 + 1, 0, false));
+        assertFalse(glass.accept(figure, WIDTH / 2, 0, false));
+        assertFalse(glass.accept(figure, WIDTH / 2 - 1, 0, false));
     }
 
     @Test
     public void shouldAcceptWhenFigureAboveDropped() {
         glass.drop(new FigureImpl(1, 0, "##"), WIDTH / 2, HEIGHT);
 
-        assertTrue(glass.accept(new FigureImpl(1, 0, "##"), WIDTH / 2, 1));
+        assertTrue(glass.accept(new FigureImpl(1, 0, "##"), WIDTH / 2, 1, false));
     }
 
     @Test
@@ -126,9 +126,9 @@ public class GlassImplTest {
 
         glass.drop(figure, WIDTH / 2, HEIGHT);
 
-        assertFalse(glass.accept(figure, WIDTH / 2, 0));
-        assertFalse(glass.accept(figure, WIDTH / 2, 1));
-        assertTrue(glass.accept(figure, WIDTH / 2, 2));
+        assertFalse(glass.accept(figure, WIDTH / 2, 0, false));
+        assertFalse(glass.accept(figure, WIDTH / 2, 1, false));
+        assertTrue(glass.accept(figure, WIDTH / 2, 2, false));
     }
 
     @Test
@@ -137,7 +137,7 @@ public class GlassImplTest {
 
         glass.drop(figure, WIDTH / 2, HEIGHT);
 
-        assertFalse(glass.accept(figure, WIDTH / 2, 2));
+        assertFalse(glass.accept(figure, WIDTH / 2, 2, false));
     }
 
     @Test
@@ -146,7 +146,7 @@ public class GlassImplTest {
 
         glass.drop(figure, WIDTH / 2, HEIGHT);
 
-        assertFalse(glass.accept(point, WIDTH / 2 - 1, 1));
+        assertFalse(glass.accept(point, WIDTH / 2 - 1, 1, false));
     }
 
     @Test
@@ -155,7 +155,7 @@ public class GlassImplTest {
 
         glass.drop(figure, WIDTH / 2, HEIGHT);
 
-        assertTrue(glass.accept(figure, WIDTH / 2 + 1, 2));
+        assertTrue(glass.accept(figure, WIDTH / 2 + 1, 2, false));
     }
 
     @Test
@@ -164,7 +164,7 @@ public class GlassImplTest {
 
         glass.drop(point, 0, HEIGHT);
 
-        assertFalse(glass.accept(point, 0, 1));
+        assertFalse(glass.accept(point, 0, 1, false));
     }
 
 
@@ -172,7 +172,7 @@ public class GlassImplTest {
     public void shouldIgnoreWhenDropOutside() {
         glass.drop(new FigureImpl(0, 0, "##"), -1, HEIGHT - 1);
 
-        assertTrue(glass.accept(point, 0, 0));
+        assertTrue(glass.accept(point, 0, 0, false));
     }
 
     @Test
@@ -198,7 +198,7 @@ public class GlassImplTest {
 
     @Test
     public void shouldRejectWhenPartiallyOutsideOnRight() {
-        assertFalse(glass.accept(new FigureImpl(0, 0, "##"), WIDTH - 1, 0));
+        assertFalse(glass.accept(new FigureImpl(0, 0, "##"), WIDTH - 1, 0, false));
     }
 
     @Test
@@ -313,7 +313,7 @@ public class GlassImplTest {
 
         glass.drop(point, WIDTH - 1, HEIGHT);
 
-        assertTrue(glass.accept(glassWidthFigure, 0, HEIGHT - 1));
+        assertTrue(glass.accept(glassWidthFigure, 0, HEIGHT - 1, false));
     }
 
     @Test
@@ -323,7 +323,7 @@ public class GlassImplTest {
 
         glass.drop(new FigureImpl(0, 0, "#", "#"), WIDTH - 1, HEIGHT);
 
-        assertTrue(glass.accept(glassWidthFigure, 0, 1));
+        assertTrue(glass.accept(glassWidthFigure, 0, 1, false));
     }
 
     @Test
@@ -397,8 +397,8 @@ public class GlassImplTest {
 
         glass.drop(twoRowsFigure, WIDTH / 2, HEIGHT);
 
-        assertFalse(glass.accept(point, WIDTH / 2, 2));
-        assertFalse(glass.accept(point, WIDTH / 2, 3));
+        assertFalse(glass.accept(point, WIDTH / 2, 2, false));
+        assertFalse(glass.accept(point, WIDTH / 2, 3, false));
     }
 
     @Test
@@ -407,7 +407,7 @@ public class GlassImplTest {
         Figure figure = Type.J.create();
         glass.drop(figure, CENTER_X, TOP_Y);
 
-        assertFalse(glass.accept(figure, CENTER_X, TOP_Y));
+        assertFalse(glass.accept(figure, CENTER_X, TOP_Y, false));
     }
 
     @Test
@@ -421,7 +421,7 @@ public class GlassImplTest {
     public void shouldNotAcceptWhenDroppedYellowFigure_int_overflow() {
         glass.drop(createLine(Type.O, "#"), 0, TOP_Y);
 
-        assertFalse(glass.accept(point, 0, 0));
+        assertFalse(glass.accept(point, 0, 0, false));
     }
 
     @Test
@@ -430,7 +430,7 @@ public class GlassImplTest {
         glass.drop(createLine(Type.J, "#"), 0, TOP_Y);
 
         verify(listener).event(Events.linesRemoved(1, 1));
-        assertTrue(glass.accept(point, 0, 0));
+        assertTrue(glass.accept(point, 0, 0, false));
     }
 
     @Test
@@ -439,8 +439,8 @@ public class GlassImplTest {
         glass.drop(createLine("##########"), 0, TOP_Y);
 
         verify(listener).event(Events.linesRemoved(1, 1));
-        assertFalse(glass.accept(point, 0, 0));
-        assertTrue(glass.accept(point, 1, 0));
+        assertFalse(glass.accept(point, 0, 0, false));
+        assertTrue(glass.accept(point, 1, 0, false));
     }
 
     private Figure createLine(Type type, String ... lines) {
