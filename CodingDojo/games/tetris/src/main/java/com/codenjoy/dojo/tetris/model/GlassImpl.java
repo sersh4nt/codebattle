@@ -57,7 +57,11 @@ public class GlassImpl implements Glass {
                 cnt++;
             }
         }
-        return cnt > 2;
+
+        //if(hasHole(3) < 2 && cnt > 0) {
+        //    return true;
+        //}
+        return cnt == 4;
     }
 
     public GlassImpl(int width, int height, Supplier<Integer> supplier) {
@@ -68,6 +72,18 @@ public class GlassImpl implements Glass {
             occupied.add(BigInteger.ZERO);
         }
         this.hasFourLines = false;
+    }
+
+    private int hasHole(int y) {
+        int cnt = 0;
+        for(int i = 1; i < width; ++i) {
+            BigInteger line = occupied.get(y);
+            BigInteger atPos = Ob111.shiftLeft((i + 1)*BITS);
+            if ((line.and(atPos).equals(BigInteger.ZERO))) {
+                ++cnt;
+            }
+        }
+        return cnt;
     }
 
     private boolean couldDrop(Figure figure, int x, int y) {
